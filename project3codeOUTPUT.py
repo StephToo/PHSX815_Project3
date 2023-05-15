@@ -1,36 +1,28 @@
-import numpy as np
 import matplotlib.pyplot as plt
 
-def likelihood(data, parameter):
-    sigma = np.std(data)
-    return np.exp(-0.5*np.sum((data/parameter)**2))/((2*np.pi*parameter**2)**(len(data)/2))
-
-# Read in the data from the text file
+# Loads data from the text file
+# https://www.pythontutorial.net/python-basics/python-write-text-file/
 with open('simulated_data.txt', 'r') as file:
-    data = [float(line) for line in file]
+    data = [line.strip().split(',') for line in file]
 
-# Define a range of parameter values to test
-parameter_values = np.linspace(0.1, 10, 1000)
+# Split  data into two sets based on the scenario number
+# https://sparkbyexamples.com/python/python-convert-string-to-float/
+# https://stackoverflow.com/questions/6981717/pythonic-way-to-combine-for-loop-and-if-statement
+scenario1_data = [float(d[0]) for d in data if d[1] == '1']
+scenario2_data = [float(d[0]) for d in data if d[1] == '2']
 
-# Calculate the likelihood for each parameter value and find the maximum likelihood value
-likelihoods = [likelihood(data, p) for p in parameter_values]
-max_likelihood_index = np.argmax(likelihoods)
-max_likelihood_parameter = parameter_values[max_likelihood_index]
+# Creates separate histograms for each scenario
+# https://www.geeksforgeeks.org/how-to-plot-two-histograms-together-in-matplotlib/
+plt.hist(scenario1_data, bins=35, alpha=0.5, label='Scenario 1')
+plt.hist(scenario2_data, bins=35, alpha=0.5, label='Scenario 2')
 
-# Plot the likelihood as a function of the parameter value
-plt.plot(parameter_values, likelihoods)
-plt.axvline(x=max_likelihood_parameter, color='r', linestyle='--')
-plt.xlabel('Parameter value')
-plt.ylabel('Likelihood')
-plt.title('Likelihood function for simulated data')
+# Add labels and title to the plot, legend, show, histograms on top of eachother
+# https://www.geeksforgeeks.org/how-to-plot-data-from-a-text-file-using-matplotlib/
+plt.xlabel('Deviation from 175 cm')
+plt.ylabel('Amount of Adult Males')
+plt.title('Adult Male Height Comparison')
+
+plt.legend()
+
 plt.show()
-
-# Print the estimated parameter value and a confidence interval
-confidence_level = 0.68
-lower_index = np.searchsorted(likelihoods[:max_likelihood_index], np.max(likelihoods)*confidence_level)
-upper_index = np.searchsorted(likelihoods[max_likelihood_index:], np.max(likelihoods)*confidence_level) + max_likelihood_index
-lower_bound = parameter_values[lower_index]
-upper_bound = parameter_values[upper_index]
-print(f"Estimated parameter value: {max_likelihood_parameter:.3f}")
-print(f"Confidence interval: [{lower_bound:.3f}, {upper_bound:.3f}]")
 
